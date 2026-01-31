@@ -284,7 +284,9 @@ class Reservoir:
             PreferredUnits=LengthUnit.METERS,
             CurrentUnits=LengthUnit.METERS,
             ErrMessage="assume default fracture width (500 m)",
-            ToolTipText="Width of each fracture"
+            ToolTipText="Total horizontal length of each fracture plane (from tip to tip). "
+                        "Note: In some contexts this is called 'Fracture Length'; it refers to the fracture's lateral "
+                        "extent, not its aperture or thickness."
         )
 
         fracnumb_allowable_range = list(range(1, _MAX_ALLOWED_FRACTURES + 1, 1))
@@ -675,7 +677,7 @@ class Reservoir:
         model.reserv.layerthickness.value[model.reserv.numseg.value-1] = 100_000.0
 
         if self.fracnumb.Provided and self.fracnumb_per_stimulated_well.Provided:
-            raise ValueError(f'Only one of {self.fracnumb_per_stimulated_well.Name} and {self.fracnumb.Name}'
+            raise ValueError(f'Only one of {self.fracnumb_per_stimulated_well.Name} and {self.fracnumb.Name} '
                              f'may be provided. '
                              f'Please provide only one of these parameters.')
 

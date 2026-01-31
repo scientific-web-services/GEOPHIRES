@@ -9,6 +9,8 @@ from typing import Any
 
 import numpy as np
 import numpy_financial as npf
+import pandas as pd
+
 from geophires_x.Parameter import listParameter
 
 from base_test_case import BaseTestCase
@@ -25,6 +27,7 @@ from geophires_x.EconomicsSam import (
     SamEconomicsCalculations,
     _get_royalty_rate_schedule,
     _validate_construction_capex_schedule,
+    _calculate_nominal_discount_rate_from_real_and_inflation_pct,
 )
 from geophires_x.GeoPHIRESUtils import sig_figs, quantity, is_float
 
@@ -67,12 +70,20 @@ class EconomicsSamTestCase(BaseTestCase):
         base_lcoe = _lcoe(base_result)
         self.assertGreater(base_lcoe, 7)
 
-        ir = base_result.result['ECONOMIC PARAMETERS']['Interest Rate']
+        econ = base_result.result['ECONOMIC PARAMETERS']
+
+        ir = econ['Interest Rate']
         self.assertIsNone(ir)
 
-        rdr = base_result.result['ECONOMIC PARAMETERS']['Real Discount Rate']
+        rdr = econ['Real Discount Rate']
         self.assertEqual(rdr['value'], 7.0)
         self.assertEqual(rdr['unit'], '%')
+
+        itc_output = econ['Investment Tax Credit']
+        self.assertIsNotNone(itc_output)
+        self.assertAlmostEqualWithinPercentage(
+            base_result.result['CAPITAL COSTS (M$)']['Total CAPEX']['value'] * 0.3, itc_output['value'], percent=5
+        )
 
     def test_drawdown(self):
         r = self._get_result(
@@ -118,6 +129,93 @@ class EconomicsSamTestCase(BaseTestCase):
         npvs = [_npv(self._get_result(rp)) for rp in rate_params]
         for i in range(len(npvs) - 1):
             self.assertLess(npvs[i], npvs[i + 1])
+
+    def test_npv_and_irr_for_net_cash_flow(self):
+        """
+        Verification relevant to discussion at https://github.com/NREL/SAM/issues/2129#issuecomment-3687452532
+        """
+
+        def prnt(msg: str) -> None:
+            if self._is_github_actions():
+                _log.info(msg)
+            else:
+                print(msg)
+
+        with open(self._get_test_file_path('test_npv_2-cash_flow.csv')) as f:
+            df = pd.read_csv(f, index_col=0)
+
+        # Extract the cash flow row
+        cash_flows = df.loc['After-tax net cash flow ($)'].values.astype(float)
+
+        # Extract the expected IRR and NPV rows
+        cash_flow_irr = df.loc['After-tax cumulative IRR (%)'].values
+        cash_flow_npv = df.loc['After-tax cumulative NPV ($)'].values.astype(float)
+
+        # Discount rate
+        real_discount_rate = 0.08
+        discount_rate = _calculate_nominal_discount_rate_from_real_and_inflation_pct(real_discount_rate, 0.023) / 100.0
+
+        prnt('Verifying NPV and IRR calculations for all years:\n')
+        prnt('=' * 100)
+
+        calculated_npvs = []
+        irr_matches = []
+        npv_matches = []
+
+        # Verify for each year
+        for i in range(len(cash_flows)):
+            # Get cash flows up to current year (inclusive)
+            cash_flows_to_date = cash_flows[: i + 1]
+
+            # Calculate NPV
+            calculated_npv = npf.npv(discount_rate, cash_flows_to_date)
+            calculated_npvs.append(calculated_npv)
+            cash_flow_npv_value = cash_flow_npv[i]
+            npv_match = abs(calculated_npv - cash_flow_npv_value) < 1  # Allow for rounding
+            npv_matches.append(npv_match)
+
+            # Calculate IRR
+            try:
+                calculated_irr = npf.irr(cash_flows_to_date) * 100  # Convert to percentage
+                cash_flow_irr_value = cash_flow_irr[i]
+
+                if pd.isna(cash_flow_irr_value):
+                    irr_match = pd.isna(calculated_irr) or calculated_irr != calculated_irr
+                    irr_status = '✓ Both NaN'
+                else:
+                    expected_irr_float = float(cash_flow_irr_value)
+                    irr_match = abs(calculated_irr - expected_irr_float) < 0.01  # Allow small difference
+                    irr_status = (
+                        '✓ Match' if irr_match else f'✗ Mismatch (diff: {calculated_irr - expected_irr_float:.4f})'
+                    )
+            except Exception:
+                calculated_irr = float('nan')
+                irr_match = pd.isna(cash_flow_irr[i])
+
+                irr_status = '✓ Both NaN' if irr_match else '✗ Error calculating'
+
+            irr_matches.append(irr_match)
+
+            npv_status = '✓ Match' if npv_match else f'✗ Mismatch (diff: {calculated_npv - cash_flow_npv_value:,.0f})'
+
+            year_label = df.columns[i]
+            prnt(f'\n{year_label}:')
+            prnt(f'  Cash flows used: {cash_flows_to_date.tolist()}')
+            prnt(
+                f'  NPV: Calculated (Expected)={calculated_npv:,.0f}, Value in Cash Flow={cash_flow_npv_value:,.0f} - {npv_status}'
+            )
+            prnt(
+                f'  IRR: Calculated (Expected)={calculated_irr:.2f}%, Value in Cash Flow={cash_flow_irr[i]} - {irr_status}'
+            )
+
+        prnt('\n' + '=' * 100)
+        # prnt("\nSummary:")
+        prnt(f'Total years checked: {len(cash_flows)}')
+
+        self.assertEqual(len(cash_flows), len(npv_matches))
+        self.assertTrue(all(npv_matches))
+        self.assertEqual(len(cash_flows), len(irr_matches))
+        self.assertTrue(all(irr_matches))
 
     def test_electricity_generation_profile(self):
         r = self._get_result({})
@@ -1018,6 +1116,23 @@ class EconomicsSamTestCase(BaseTestCase):
             sam_econ.sam_after_tax_net_cash_flow_all_years,
         )
 
+    def test_post_processed_levelized_metrics(self):
+        r: GeophiresXResult = GeophiresXResult(
+            self._get_test_file_path('../examples/example_SAM-single-owner-PPA-5.out')
+        )
+
+        def _row(row_name: str) -> list[float]:
+            return EconomicsSamTestCase._get_cash_flow_row(r.result['SAM CASH FLOW PROFILE'], row_name)
+
+        lcoe_row = _row('LCOE Levelized cost of energy nominal (cents/kWh)')
+        pv_annual_costs_row = _row('Present value of annual costs ($)')
+        pv_annual_energy_row = _row('Present value of annual energy nominal (kWh)')
+
+        for row in [lcoe_row, pv_annual_costs_row, pv_annual_energy_row]:
+            self.assertEqual(1, len(row))
+
+        self.assertEqual(lcoe_row[0], round(pv_annual_costs_row[0] * 100 / pv_annual_energy_row[0], 2))
+
     @staticmethod
     def _new_model(input_file: Path, additional_params: dict[str, Any] | None = None, read_and_calculate=True) -> Model:
         if additional_params is not None:
@@ -1039,14 +1154,3 @@ class EconomicsSamTestCase(BaseTestCase):
             m.Calculate()
 
         return m
-
-    def _handle_assert_logs_failure(self, ae: AssertionError):
-        if sys.version_info[:2] == (3, 8) and self._is_github_actions():
-            # FIXME - see
-            #  https://github.com/softwareengineerprogrammer/GEOPHIRES/actions/runs/19646240874/job/56262028512#step:5:344
-            _log.warning(
-                f'WARNING: Skipping logs assertion in GitHub Actions '
-                f'for Python {sys.version_info.major}.{sys.version_info.minor}'
-            )
-        else:
-            raise ae
