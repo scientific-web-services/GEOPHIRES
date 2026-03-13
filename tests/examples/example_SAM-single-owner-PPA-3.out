@@ -4,10 +4,10 @@
 
 Simulation Metadata
 ----------------------
- GEOPHIRES Version: 3.11.9
- Simulation Date: 2026-01-28
- Simulation Time:  12:11
- Calculation Time:      1.237 sec
+ GEOPHIRES Version: 3.11.18
+ Simulation Date: 2026-02-27
+ Simulation Time:  13:19
+ Calculation Time:      1.206 sec
 
                            ***SUMMARY OF RESULTS***
 
@@ -15,6 +15,7 @@ Simulation Metadata
       Average Net Electricity Production:                    58.87 MW
       Electricity breakeven price:                            7.64 cents/kWh
       Total CAPEX:                                          275.47 MUSD
+      Total CAPEX ($/kW):                                     4667 USD/kW
       Number of production wells:                             6
       Number of injection wells:                              6
       Flowrate per production well:                         100.0 kg/sec
@@ -202,6 +203,8 @@ Capital expenditure schedule [construction] (%)  	100.0
 Overnight capital expenditure [construction] ($) 	-262,355,642
 plus:
 Inflation cost [construction] ($)                	-13,117,782
+plus:
+Royalty supplemental payments [construction] ($) 	0
 equals:
 Nominal capital expenditure [construction] ($)   	-275,473,424
 

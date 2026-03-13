@@ -58,16 +58,16 @@ Free software: `MIT license <LICENSE>`__
     :alt: Supported implementations
     :target: https://pypi.org/project/geophires-x
 
-.. |commits-since| image:: https://img.shields.io/github/commits-since/softwareengineerprogrammer/GEOPHIRES-X/v3.11.12.svg
+.. |commits-since| image:: https://img.shields.io/github/commits-since/softwareengineerprogrammer/GEOPHIRES-X/v3.11.25.svg
     :alt: Commits since latest release
-    :target: https://github.com/softwareengineerprogrammer/GEOPHIRES-X/compare/v3.11.12...main
+    :target: https://github.com/softwareengineerprogrammer/GEOPHIRES-X/compare/v3.11.25...main
 
 .. |docs| image:: https://readthedocs.org/projects/GEOPHIRES-X/badge/?style=flat
     :target: https://softwareengineerprogrammer.github.io/GEOPHIRES
     :alt: Documentation Status
 
-.. |coverage| image:: https://coveralls.io/repos/github/NREL/GEOPHIRES-X/badge.svg?branch=main
-    :target: https://coveralls.io/github/NREL/GEOPHIRES-X?branch=main
+.. |coverage| image:: https://codecov.io/gh/softwareengineerprogrammer/GEOPHIRES/graph/badge.svg?token=2SZNNVT28Q
+    :target: https://codecov.io/gh/softwareengineerprogrammer/GEOPHIRES
     :alt: Coverage Status
 
 .. |code-style| image:: https://img.shields.io/badge/code%20style-black-000000.svg
@@ -168,10 +168,14 @@ Example-specific web interface deeplinks are listed in the Link column.
      - Input file
      - Case report file
      - Link
-   * - Case Study: 500 MWe EGS modeled on Fervo Cape Station (`documentation <https://nrel.github.io/GEOPHIRES-X/Fervo_Project_Cape-4.html>`__)
-     - `Fervo_Project_Cape-4.txt <tests/examples/Fervo_Project_Cape-4.txt>`__
-     - `.out <tests/examples/Fervo_Project_Cape-4.out>`__
-     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-4>`__
+   * - Case Study: 500 MW EGS Modeled on Fervo Cape Station (2026 Update) (`documentation <https://softwareengineerprogrammer.github.io/GEOPHIRES/Fervo_Project_Cape-5.html>`__)
+     - `Fervo_Project_Cape-5.txt <tests/examples/Fervo_Project_Cape-5.txt>`__
+     - `.out <tests/examples/Fervo_Project_Cape-5.out>`__
+     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-5>`__
+   * - 100 MW EGS Modeled on Fervo Cape Station
+     - `Fervo_Project_Cape-6.txt <tests/examples/Fervo_Project_Cape-6.txt>`__
+     - `.out <tests/examples/Fervo_Project_Cape-6.out>`__
+     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-6>`__
    * - Example 1: EGS Electricity
      - `example1.txt <tests/examples/example1.txt>`__
      - `.out <tests/examples/example1.out>`__
@@ -264,6 +268,10 @@ Example-specific web interface deeplinks are listed in the Link column.
      - `example_SBT_Lo_T.txt <tests/examples/example_SBT_Lo_T.txt>`__
      - `.out <tests/examples/example_SBT_Lo_T.out>`__
      - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=example_SBT_Lo_T>`__
+   * - CLGS: SBT ULoop
+     - `example_SBT_ULoop.txt <tests/examples/example_SBT_ULoop.txt>`__
+     - `.out <tests/examples/example_SBT_ULoop.out>`__
+     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=example_SBT_ULoop>`__
    * - SUTRA Example 1
      - `SUTRAExample1.txt <tests/examples/SUTRAExample1.txt>`__
      - `.out <tests/examples/SUTRAExample1.out>`__
@@ -296,14 +304,10 @@ Example-specific web interface deeplinks are listed in the Link column.
      - `Fervo_Project_Cape-3.txt <tests/examples/Fervo_Project_Cape-3.txt>`__
      - `.out <tests/examples/Fervo_Project_Cape-3.out>`__
      - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-3>`__
-   * - Fervo Cape Station 5: [Preview] Case Study: 500 MW EGS modeled on Fervo Cape Station (2026 Update)
-     - `Fervo_Project_Cape-5.txt <tests/examples/Fervo_Project_Cape-5.txt>`__
-     - `.out <tests/examples/Fervo_Project_Cape-5.out>`__
-     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-5>`__
-   * - Fervo Cape Station 6: [Preview] Case Study: 100 MW EGS modeled on Fervo Cape Station
-     - `Fervo_Project_Cape-6.txt <tests/examples/Fervo_Project_Cape-6.txt>`__
-     - `.out <tests/examples/Fervo_Project_Cape-6.out>`__
-     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-6>`__
+   * - Fervo Cape Station 4: [Deprecated] Case Study: 500 MWe EGS modeled on Fervo Cape Station (2025) (`documentation <https://softwareengineerprogrammer.github.io/GEOPHIRES/Fervo_Project_Cape-4.html>`__)
+     - `Fervo_Project_Cape-4.txt <tests/examples/Fervo_Project_Cape-4.txt>`__
+     - `.out <tests/examples/Fervo_Project_Cape-4.out>`__
+     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=Fervo_Project_Cape-4>`__
    * - Superhot Rock (SHR) Example 1
      - `example_SHR-1.txt <tests/examples/example_SHR-1.txt>`__
      - `.out <tests/examples/example_SHR-1.out>`__
@@ -312,7 +316,7 @@ Example-specific web interface deeplinks are listed in the Link column.
      - `example_SHR-2.txt <tests/examples/example_SHR-2.txt>`__
      - `.out <tests/examples/example_SHR-2.out>`__
      - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=example_SHR-2>`__
-   * - SAM Single Owner PPA: 50 MWe
+   * - SAM Single Owner PPA: 50 MWe (`documentation <https://softwareengineerprogrammer.github.io/GEOPHIRES/SAM-Economic-Models.html>`__)
      - `example_SAM-single-owner-PPA.txt <tests/examples/example_SAM-single-owner-PPA.txt>`__
      - `.out <tests/examples/example_SAM-single-owner-PPA.out>`__
      - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=example_SAM-single-owner-PPA>`__
@@ -328,6 +332,10 @@ Example-specific web interface deeplinks are listed in the Link column.
      - `example_SAM-single-owner-PPA-4.txt <tests/examples/example_SAM-single-owner-PPA-4.txt>`__
      - `.out <tests/examples/example_SAM-single-owner-PPA-4.out>`__
      - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=example_SAM-single-owner-PPA-4>`__
+   * - SAM Single Owner PPA: Royalty Schedule & Supplemental Payments
+     - `example_SAM-single-owner-PPA-4b.txt <tests/examples/example_SAM-single-owner-PPA-4b.txt>`__
+     - `.out <tests/examples/example_SAM-single-owner-PPA-4b.out>`__
+     - `link <https://gtp.scientificwebservices.com/geophires?geophires-example-id=example_SAM-single-owner-PPA-4b>`_
    * - SAM Single Owner PPA: Multiple Construction Years
      - `example_SAM-single-owner-PPA-5.txt <tests/examples/example_SAM-single-owner-PPA-5.txt>`__
      - `.out <tests/examples/example_SAM-single-owner-PPA-5.out>`__

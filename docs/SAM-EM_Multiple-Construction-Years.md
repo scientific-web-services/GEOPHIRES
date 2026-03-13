@@ -3,9 +3,9 @@
 [Multiple Construction Years example web interface link](https://gtp.scientificwebservices.com/geophires/?geophires-example-id=example_SAM-single-owner-PPA-5)
 
 GEOPHIRES SAM Economic Models support multi-year construction timelines to deliver accurate, time-adjusted financial
-metrics, including IRR and NPV, for projects with extended development periods.
-This feature models the pre-revenue phase to capture the real-world economic impact of Interest During Construction (
-IDC), inflation, and capital deployment timing.
+metrics, including LCOE, IRR and NPV for projects with extended development periods.
+This feature models the pre-revenue phase to capture the real-world economic impact of capital deployment timing,
+inflation, royalty supplemental costs (such as option payments or land leases), and Interest During Construction (IDC).
 This ensures that key investment decision metrics correctly reflect the time value of money leading up to the Commercial
 Operation Date (COD).
 
@@ -17,7 +17,7 @@ drawdowns (funding early years purely with equity) and adjust `Inflation Rate Du
 
 ## Construction Cash Flows
 
-Multiple Construction Years example cash flow CSV: [example_SAM-single-owner-PPA-5.csv](https://github.com/softwareengineerprogrammer/GEOPHIRES/blob/main/tests/examples/example_SAM-single-owner-PPA-5.csv)
+Multiple Construction Years example cash flow CSV: [example_SAM-single-owner-PPA-5_cash-flow.csv](https://github.com/softwareengineerprogrammer/GEOPHIRES/blob/main/tests/examples/example_SAM-single-owner-PPA-5_cash-flow.csv)
 
 The `CONSTRUCTION` cash flow category displays detailed financial movements during the pre-operational phase.
 Construction-specific line items are suffixed with `[construction]`.
@@ -27,6 +27,7 @@ A project with seven construction years, as in the example below, will start in 
 
 ![](_images/sam-em-mcy-construction-cash-flow-category.png)
 
+
 ## Construction Years Calculations
 
 For each construction year, the `CONSTRUCTION` cash flow is calculated as follows:
@@ -35,6 +36,7 @@ For each construction year, the `CONSTRUCTION` cash flow is calculated as follow
    percentage of the total `Overnight Capital Cost` based on the `Construction CAPEX Schedule`.
 1. **Inflation**: An inflation adder is calculated using `Inflation Rate During Construction` and added to the overnight
    cost to yield `Nominal capital expenditure [construction]`.
+1. **Royalty Supplemental Costs**: Any `Royalty Supplemental Payments`[^royalties-docs] scheduled during the construction phase are applied as an additional capital cost for the year. This ensures that pre-revenue site control costs (such as option payments or land leases) are properly capitalized into the project basis.
 1. **Debt & Equity Draws**: Costs are covered by issuance of equity and debt based on `Fraction of Investment in Bonds`.
    Debt
    financing can be delayed by specifying `Bond Financing Start Year`. Years prior to this threshold are financed 100%
@@ -46,6 +48,8 @@ For each construction year, the `CONSTRUCTION` cash flow is calculated as follow
    `Nominal capital expenditure [construction]` and `Debt interest payment [construction]` (capitalized IDC).
 
 ![](_images/sam-em-mcy-design-diagram.png)
+
+[^royalties-docs]: See [royalties documentation](SAM-Economic-Models.html#royalties).
 
 ## Operational Years (SAM Integration)
 
@@ -60,7 +64,11 @@ ratio that is passed to SAM (`debt_percent`).
 ## Post-Processing (Timeline-adjusted Metrics)
 
 After SAM computes the operational cash flows, GEOPHIRES merges the construction phase and
-operational phase net cash flows together to report accurate project-level metrics.
+operational phase net cash flows. It then post-processes applicable line items to calculate timeline-adjusted project-level metrics, as described below.
+
+Standard SAM line items that are not subject to post-processing, such as `Cash flow from investing activities ($)`
+and `Total pre-tax returns ($)`, reflect the capitalized equivalent basis at Year 0, displaying no values during the
+pre-revenue construction period.
 
 ### IRR and NPV
 The merged `After-tax net cash flow ($)` row represents the complete project lifecycle:
@@ -86,4 +94,4 @@ The result case report LCOE metric (`Electricity breakeven price`) reflects the 
 
 ---
 
-See [SAM Economic Models documentation](SAM-Economic-Models.html).
+See also [SAM Economic Models documentation](SAM-Economic-Models.html).
